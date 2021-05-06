@@ -4,7 +4,7 @@ import pandas as pd
 df_capital_loss = {key : capital loss}
 df_age_hours = {key : [age, hours]}
 """
-def getdata(index):
+def getdata():
 	df = pd.read_csv("adult.data", header = None)
 	df['key'] = [x for x in range(0, len(df))]
 	df_capital_loss_list = df.iloc[:, [15,11]]
