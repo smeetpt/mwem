@@ -48,11 +48,12 @@ def regret(Qt,Distrot,data):
 
 def exponentialmechanism(Queries,data,distro,epsilon):
 	querydistro = [np.exp(epsilon * scoringfunc(query,data,distro)/2) for query in Queries]
-	choice = np.random.uniform(0,sum[querydistro])
+	
+	choice = np.random.uniform(0,sum(querydistro))
 	choiceindex = 0
 	for mass in querydistro:
 		choice -= mass
-		if mass <= 0:
+		if choice <= 0:
 			break
 		choiceindex += 1
 	return Queries[choiceindex]
@@ -68,7 +69,7 @@ def update(query,current_distro,para):
 	new_distro = {}
 	total = 0
 	for i in current_distro.keys():
-		new_distro[i] = current_distro[i] * np.exp(query[i] * para)
+		new_distro[i] = current_distro[i] * np.exp(query(i) * para)
 		total += new_distro[i]
 	for i in current_distro.keys():
 		new_distro[i] = new_distro[i]/total
@@ -76,25 +77,29 @@ def update(query,current_distro,para):
 
 
 def PMW(Queries, data, epsilon):
-	A = uniformdistro(data)
 	domain = findDomain(data)
 	doman_size = len(domain)
+	A = uniformdistro(domain)
 	Qt = []
 	At = [A]
+	print("PMW Started")
 	for i in range(T):
+		print("Current iteration number:", i)
 		q = exponentialmechanism(Queries,data,A,epsilon/(2*T))
 		Qt.append(q)
 		m = laplacemechanism(q,data,A,epsilon)
-		A = update(q,A,m/(2*len(data.keys())))
-		Qt.append(A)
-	print("total regret incured:", regret(Qt,A,data))
+		A = update(q,A,m/(2*doman_size))
+		At.append(A)
+	print("total regret incured:", regret(Qt,At,data))
 	return A,At,Qt
 
 data1,data2 = data_cleaning.getdata()
 Queries = [createqueries.capitallossqeuery1,createqueries.capitallossqeuery2,createqueries.capitallossqeuery2]
 trueDistro = empricaldistro(data1)
-privateDistro, alldistros, querylist = PMW(Queries,data1,0.5)
-
+privateDistro, alldistros, querylist = PMW(Queries,data1,1)
+print(privateDistro)
+print(trueDistro)
+print(querylist)
 for query in Queries:
 	print("True distribution:", evalquery(query,trueDistro))
 	print("Private distribution:", evalquery(query,privateDistro))
