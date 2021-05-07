@@ -33,10 +33,9 @@ def agexhourqeuery1(value):
 	if value[1] <= 16:
 		return 0
 	else:
-		
 		return val 
 
 def agexhourqeuery1(value):
 	threshold = 10000
-	val = value/threshold if (vlaue/threshold)  < 1 else 1
+	val = value/threshold if (value/threshold)  < 1 else 1
 	return val 
