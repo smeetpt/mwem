@@ -143,4 +143,4 @@ for query in Queries:
 	print("Private distribution:", evalquery(query,privateDistro))
 	print("Error:", mistake(query,privateDistro,trueDistro))
 plt.bar(trueDistro.keys(),trueDistro.values(),0.01)
-plt.bar(privateDistro.keys(),privateDistro.values(),0.01)
+plt.bar(privateDistro.keys(),privateDistro.values(),0.01,alpha = 0.5)
