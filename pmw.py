@@ -3,8 +3,8 @@ import random
 import createqueries, data_cleaning
 import seaborn as sns
 import matplotlib.pyplot as plt
-T = 10
-R = 10
+T = 20
+R = 20
 def findDomain(data):
 	domain = []
 	for datum in data.keys():
@@ -39,10 +39,15 @@ def normalize(distro):
 	return distro
 
 def denormalize(distro,samples):
+	new = {}
 	for dataum in distro.keys():
-		distro[dataum] = distro[dataum]*samples
-	return distro
+		new[dataum] = distro[dataum]*samples
+	return new
 
+def plot(distro,samples):
+	distro = denormalize(distro,samples)
+	plt.bar(distro.keys(), distro.values(),color='g')
+	plt.show()
 
 # query is a function 
 #distro is a distribution dictionary
@@ -103,7 +108,7 @@ def PMW(Queries, data, epsilon):
 	domain = findDomain(data)
 	doman_size = len(domain)
 	A = uniformdistro(domain)
-	scale = 2.0/(epsilon * len(data.keys()))
+	scale = 2.0/(epsilon * doman_size)
 	Qt = []
 	At = [A]
 	Mt = []
@@ -122,19 +127,20 @@ def PMW(Queries, data, epsilon):
 				A = update(Qt[index],A,Mt[index])
 		At.append(A)
 	print("total regret incured:", regret(Qt,At,data))
-	return A,At,Qt`
+	return A,At,Qt
 
 data1,data2 = data_cleaning.getdata()
 data = data_cleaning.get_range_query()
 #Queries = [createqueries.capitallossqeuery3,createqueries.capitallossqeuery1,createqueries.capitallossqeuery2]
 domain = findDomain(data)
-plt.hist()
-Queries = [createqueries.capitalrangequeries(i) for i in domain]
+Queries = [createqueries.capitalrangequeries3(i/4) for i in range(11)]
 trueDistro = empricaldistro(data)
 privateDistro, alldistros, querylist = PMW(Queries,data,1)
 print(privateDistro)
 print(trueDistro)
-# for query in Queries:
-# 	print("True distribution:", evalquery(query,trueDistro))
-# 	print("Private distribution:", evalquery(query,privateDistro))
-# 	print("Error:", mistake(query,privateDistro,trueDistro))
+for query in Queries:
+	print("True distribution:", evalquery(query,trueDistro))
+	print("Private distribution:", evalquery(query,privateDistro))
+	print("Error:", mistake(query,privateDistro,trueDistro))
+plt.bar(trueDistro.keys(),trueDistro.values(),0.01)
+plt.bar(privateDistro.keys(),privateDistro.values(),0.01)

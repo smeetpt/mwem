@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np 
 from sklearn.mixture import GaussianMixture
 import seaborn as sns
-
+from scipy.stats import truncnorm
 
 """
 df_capital_loss = {key : capital loss}
@@ -24,14 +24,18 @@ def getdata():
 		df_age_hours[key] = [df_age_hours_list['age'][key], df_age_hours_list['hours'][key]]
 	return df_capital_loss, df_age_hours
 #%%
+
+def get_truncated_normal(mean=0, sd=1, low=0, upp=10):
+    return truncnorm(
+        (low - mean) / sd, (upp - mean) / sd, loc=mean, scale=sd)
+
 def get_range_query():
-	X = np.random.normal(loc = .2, scale = .091, size = 1000)
-	Y = np.random.normal(loc = .07, scale = .01, size = 1000) 
-	S = X + Y 
+	X = get_truncated_normal(mean=0.5, sd=0.1, low=0, upp=1)
+	S = X.rvs(1000)
 	S = S.round(decimals = 2)
 	S_freq = {}
 	for i in range(1000):
-		S_freq[i] = S[i] if S[i] >= 0 and S[i] <= 1 else S[i]
+		S_freq[i] = S[i]
 	return S_freq
 
 def get_hist(freqs):
