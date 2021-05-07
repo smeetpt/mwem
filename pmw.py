@@ -107,7 +107,7 @@ def PMW(Queries, data, epsilon):
 	domain = findDomain(data)
 	doman_size = len(domain)
 	A = uniformdistro(domain)
-	scale = 2.0/(epsilon * 1000)
+	scale = 2.0 * T/(epsilon * len(data.keys()))
 	Qt = []
 	At = [A]
 	Mt = []
@@ -117,7 +117,7 @@ def PMW(Queries, data, epsilon):
 		#q = noisy_max(Queries,data,A,scale/0.5)
 		q = exponentialmechanism(Queries,data,A,epsilon)
 		Qt.append(q)
-		m = laplacemechanism(q,data,A,scale/0.5)
+		m = laplacemechanism(q,data,A,scale)
 		Mt.append(m)
 		A = update(q,A,m)
 		for j in range(R):
@@ -142,5 +142,5 @@ for query in Queries:
 	print("True distribution:", evalquery(query,trueDistro))
 	print("Private distribution:", evalquery(query,privateDistro))
 	print("Error:", mistake(query,privateDistro,trueDistro))
-plt.bar(trueDistro.keys(),trueDistro.values(),0.01)
-plt.bar(privateDistro.keys(),privateDistro.values(),0.01,alpha = 0.5)
+plt.bar(trueDistro.keys(),trueDistro.values(),0.8)
+plt.bar(privateDistro.keys(),privateDistro.values(),0.8,alpha = 0.5)
