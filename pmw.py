@@ -73,7 +73,6 @@ def regret(Qt,Distrot,data):
 
 def exponentialmechanism(Queries,data,distro,epsilon):
 	querydistro = [np.exp(epsilon * scoringfunc(query,data,distro)/2) for query in Queries]
-	
 	choice = np.random.uniform(0,sum(querydistro))
 	choiceindex = 0
 	for mass in querydistro:
@@ -108,14 +107,15 @@ def PMW(Queries, data, epsilon):
 	domain = findDomain(data)
 	doman_size = len(domain)
 	A = uniformdistro(domain)
-	scale = 2.0/(epsilon * doman_size)
+	scale = 2.0/(epsilon * 1000)
 	Qt = []
 	At = [A]
 	Mt = []
 	print("PMW Started")
 	for i in range(T):
 		print("Current iteration number:", i)
-		q = noisy_max(Queries,data,A,scale/0.5)
+		#q = noisy_max(Queries,data,A,scale/0.5)
+		q = exponentialmechanism(Queries,data,A,epsilon)
 		Qt.append(q)
 		m = laplacemechanism(q,data,A,scale/0.5)
 		Mt.append(m)
@@ -132,10 +132,10 @@ def PMW(Queries, data, epsilon):
 data1,data2 = data_cleaning.getdata()
 data = data_cleaning.get_range_query()
 #Queries = [createqueries.capitallossqeuery3,createqueries.capitallossqeuery1,createqueries.capitallossqeuery2]
-domain = findDomain(data)
-Queries = [createqueries.capitalrangequeries3(i/4) for i in range(11)]
-trueDistro = empricaldistro(data)
-privateDistro, alldistros, querylist = PMW(Queries,data,1)
+domain = findDomain(data1)
+Queries = [createqueries.capitalrangequeries(i) for i in domain]
+trueDistro = empricaldistro(data1)
+privateDistro, alldistros, querylist = PMW(Queries,data1,1)
 print(privateDistro)
 print(trueDistro)
 for query in Queries:
