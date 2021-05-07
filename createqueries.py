@@ -18,6 +18,13 @@ def capitallossqeuery3(value):
 		return 1
 	else:
 		return 0
+
+def capitalrangequeries(threshold):
+	def query(value):
+		if value <= threshold:
+			return 1
+	return query
+
 	
 def agexhourqeuery1(value):
 	threshold = 10000
