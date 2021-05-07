@@ -2,6 +2,8 @@
 import pandas as pd
 import numpy as np 
 from sklearn.mixture import GaussianMixture
+import seaborn as sns
+
 
 """
 df_capital_loss = {key : capital loss}
@@ -21,10 +23,10 @@ def getdata():
 		df_capital_loss[key] = df_capital_loss_list['capital_loss'][key]
 		df_age_hours[key] = [df_age_hours_list['age'][key], df_age_hours_list['hours'][key]]
 	return df_capital_loss, df_age_hours
-
+#%%
 def get_range_query():
-	X = np.random.normal(loc = .5, scale = .73, size = 1000)
-	Y = np.random.normal(loc = .67, scale = .45, size = 1000) 
+	X = np.random.normal(loc = .2, scale = .091, size = 1000)
+	Y = np.random.normal(loc = .07, scale = .01, size = 1000) 
 	S = X + Y 
 	S = S.round(decimals = 2)
 	S_freq = {}
@@ -34,3 +36,12 @@ def get_range_query():
 		else:
 			S_freq[item] = 1
 	return S_freq
+
+def get_hist():
+	X = []
+	Y = []
+	freqs = get_range_query()
+	for key, value in freqs.items():
+		X.append(key)
+		Y.append(value)
+	return sns.histplot([X,Y])
