@@ -44,4 +44,4 @@ def get_hist():
 	for key, value in freqs.items():
 		X.append(key)
 		Y.append(value)
-	return sns.histplot([X,Y])
+	sns.histplot([X,Y])
