@@ -1,20 +1,23 @@
 import numpy as np
 import random
 import createqueries, data_cleaning
-T = 15
-R = 15
+T = 40
+R = 40
 def findDomain(data):
 	domain = []
 	for datum in data.keys():
 		if data[datum] not in domain:
 			domain.append(data[datum])
+	domain.sort()
 	return domain
 # dat rn a  dictionory of values/names to a discreet set.
 def empricaldistro(data):
 	total = len(data.keys())
 	empricaldistro = {}
 	for dataum in data.keys():
-		empricaldistro[data[dataum]] = empricaldistro[data[dataum]] + 1/total if data[dataum] in empricaldistro	else 1/total
+		empricaldistro[data[dataum]] = empricaldistro[data[dataum]] + 1 if data[dataum] in empricaldistro else 1
+	for dataum in empricaldistro.keys():
+		empricaldistro[dataum] = empricaldistro[dataum]/total
 	return empricaldistro
 
 # dat rn a  dictionory of values/names to a discreet set.
@@ -60,7 +63,7 @@ def exponentialmechanism(Queries,data,distro,epsilon):
 	return Queries[choiceindex]
 
 def noisy_max(Queries,data,distro,epsilon):
-	diffs = [mistake(query,data,distro) + laplace(epsilon/0.5) for query in Queries]
+	diffs = [mistake(query,data,distro) + laplace(epsilon) for query in Queries]
 	for i in range(len(diffs)):
 		if diffs[i] == max(diffs):
 			return Queries[i]
@@ -92,7 +95,7 @@ def PMW(Queries, data, epsilon):
 	print("PMW Started")
 	for i in range(T):
 		print("Current iteration number:", i)
-		q = noisy_max(Queries,data,A,scale)
+		q = noisy_max(Queries,data,A,scale/0.5)
 		Qt.append(q)
 		m = laplacemechanism(q,data,A,scale/0.5)
 		Mt.append(m)
@@ -107,9 +110,9 @@ def PMW(Queries, data, epsilon):
 	return A,At,Qt
 
 data1,data2 = data_cleaning.getdata()
-#Queries = [createqueries.capitallossqeuery3,createqueries.capitallossqeuery1,createqueries.capitallossqeuery2]
+Queries = [createqueries.capitallossqeuery3,createqueries.capitallossqeuery1,createqueries.capitallossqeuery2]
 domain = findDomain(data1)
-Queries = [createqueries.capitalrangequeries(i) for i in domain]
+#Queries = [createqueries.capitalrangequeries(i) for i in domain]
 trueDistro = empricaldistro(data1)
 privateDistro, alldistros, querylist = PMW(Queries,data1,1)
 print(privateDistro)
