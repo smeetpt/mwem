@@ -1,7 +1,8 @@
 import numpy as np
 import random
 import createqueries, data_cleaning
-T = 10
+T = 25
+R = 20
 def findDomain(data):
 	domain = []
 	for datum in data.keys():
@@ -58,48 +59,59 @@ def exponentialmechanism(Queries,data,distro,epsilon):
 		choiceindex += 1
 	return Queries[choiceindex]
 
+def noisy_max(Queries,data,distro,epsilon):
+	diffs = [mistake(query,data,distro) + laplace(epsilon/0.5) for query in Queries]
+	for i in range(len(diffs)):
+		if diffs[i] == max(diffs):
+			return Queries[i]
+
 def laplace(epsilon):
 	return np.random.laplace(loc=0.0,scale = epsilon)
 
 def laplacemechanism(query,data,distro,epsilon):
-	return evalquery(query,distro) - evalquery(query,empricaldistro(data)) + laplace(2*T/epsilon)
+	return evalquery(query,empricaldistro(data)) + laplace(epsilon)
 
 
-def update(query,current_distro,para):
+def update(query,current_distro,m):
 	new_distro = {}
-	total = 0
+	error = m - evalquery(query,current_distro) 
+	total = sum([current_distro[i] * np.exp(query(i) * error/2) for i in current_distro.keys()])
+	#print(total)
 	for i in current_distro.keys():
-		new_distro[i] = current_distro[i] * np.exp(query(i) * para)
-		total += new_distro[i]
-	for i in current_distro.keys():
-		new_distro[i] = new_distro[i]/total
+		new_distro[i] = (current_distro[i] * np.exp(query(i) * error/2))/total
 	return new_distro
-
 
 def PMW(Queries, data, epsilon):
 	domain = findDomain(data)
 	doman_size = len(domain)
 	A = uniformdistro(domain)
+	scale = 2.0/(epsilon * len(data.keys()))
 	Qt = []
 	At = [A]
+	Mt = []
 	print("PMW Started")
 	for i in range(T):
 		print("Current iteration number:", i)
-		q = exponentialmechanism(Queries,data,A,epsilon/(2*T))
+		q = noisy_max(Queries,data,A,scale)
 		Qt.append(q)
-		m = laplacemechanism(q,data,A,epsilon)
-		A = update(q,A,m/(2*doman_size))
+		m = laplacemechanism(q,data,A,scale/0.5)
+		Mt.append(m)
+		A = update(q,A,m)
+		for j in range(R):
+			arr = [i for i in range(len(Mt))]
+			np.random.shuffle(arr)
+			for index in arr:
+				A = update(Qt[index],A,Mt[index])
 		At.append(A)
 	print("total regret incured:", regret(Qt,At,data))
 	return A,At,Qt
 
 data1,data2 = data_cleaning.getdata()
-Queries = [createqueries.capitallossqeuery1,createqueries.capitallossqeuery2,createqueries.capitallossqeuery2]
+Queries = [createqueries.capitallossqeuery3,createqueries.capitallossqeuery1,createqueries.capitallossqeuery2]
 trueDistro = empricaldistro(data1)
 privateDistro, alldistros, querylist = PMW(Queries,data1,1)
 print(privateDistro)
 print(trueDistro)
-print(querylist)
 for query in Queries:
 	print("True distribution:", evalquery(query,trueDistro))
 	print("Private distribution:", evalquery(query,privateDistro))

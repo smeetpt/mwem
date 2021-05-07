@@ -13,10 +13,12 @@ def capitallossqeuery2(value):
 	return val 
 
 def capitallossqeuery3(value):
-	threshold = 1000
-	val = value/threshold if (value/threshold)  < 1 else 1
-	return val 
-
+	threshold = 10000
+	if value == 0:
+		return 1
+	else:
+		return 0
+	
 def agexhourqeuery1(value):
 	threshold = 10000
 	if value[1] <= 16:
