@@ -30,18 +30,14 @@ def get_range_query():
 	S = X + Y 
 	S = S.round(decimals = 2)
 	S_freq = {}
-	for item in S:
-		if item in S_freq:
-			S_freq[item] += 1
-		else:
-			S_freq[item] = 1
+	for i in range(1000):
+		S_freq[i] = S[i] if S[i] >= 0 and S[i] <= 1 else S[i]
 	return S_freq
 
-def get_hist():
+def get_hist(freqs):
 	X = []
 	Y = []
-	freqs = get_range_query()
 	for key, value in freqs.items():
 		X.append(key)
 		Y.append(value)
-	return sns.histplot([X,Y])
+	sns.histplot([X,Y])

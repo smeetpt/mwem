@@ -1,14 +1,15 @@
 import numpy as np
 import random
 import createqueries, data_cleaning
-T = 40
-R = 40
+import seaborn as sns
+import matplotlib.pyplot as plt
+T = 10
+R = 10
 def findDomain(data):
 	domain = []
 	for datum in data.keys():
 		if data[datum] not in domain:
 			domain.append(data[datum])
-	domain.sort()
 	return domain
 # dat rn a  dictionory of values/names to a discreet set.
 def empricaldistro(data):
@@ -27,6 +28,21 @@ def uniformdistro(domain):
 	for i in domain:
 		uniformdistro[i] = 1/total
 	return uniformdistro
+
+#normalize
+def normalize(distro):
+	total = 0
+	for dataum in distro.keys():
+		total += distro[dataum]
+	for dataum in distro.keys():
+		distro[dataum] = distro[dataum]/total
+	return distro
+
+def denormalize(distro,samples):
+	for dataum in distro.keys():
+		distro[dataum] = distro[dataum]*samples
+	return distro
+
 
 # query is a function 
 #distro is a distribution dictionary
@@ -78,11 +94,10 @@ def laplacemechanism(query,data,distro,epsilon):
 def update(query,current_distro,m):
 	new_distro = {}
 	error = m - evalquery(query,current_distro) 
-	total = sum([current_distro[i] * np.exp(query(i) * error/2) for i in current_distro.keys()])
-	#print(total)
 	for i in current_distro.keys():
-		new_distro[i] = (current_distro[i] * np.exp(query(i) * error/2))/total
-	return new_distro
+		new_distro[i] = (current_distro[i] * np.exp(query(i) * error/2))
+
+	return normalize(new_distro)
 
 def PMW(Queries, data, epsilon):
 	domain = findDomain(data)
@@ -107,17 +122,19 @@ def PMW(Queries, data, epsilon):
 				A = update(Qt[index],A,Mt[index])
 		At.append(A)
 	print("total regret incured:", regret(Qt,At,data))
-	return A,At,Qt
+	return A,At,Qt`
 
 data1,data2 = data_cleaning.getdata()
-Queries = [createqueries.capitallossqeuery3,createqueries.capitallossqeuery1,createqueries.capitallossqeuery2]
-domain = findDomain(data1)
-#Queries = [createqueries.capitalrangequeries(i) for i in domain]
-trueDistro = empricaldistro(data1)
-privateDistro, alldistros, querylist = PMW(Queries,data1,1)
+data = data_cleaning.get_range_query()
+#Queries = [createqueries.capitallossqeuery3,createqueries.capitallossqeuery1,createqueries.capitallossqeuery2]
+domain = findDomain(data)
+plt.hist()
+Queries = [createqueries.capitalrangequeries(i) for i in domain]
+trueDistro = empricaldistro(data)
+privateDistro, alldistros, querylist = PMW(Queries,data,1)
 print(privateDistro)
 print(trueDistro)
-for query in Queries:
-	print("True distribution:", evalquery(query,trueDistro))
-	print("Private distribution:", evalquery(query,privateDistro))
-	print("Error:", mistake(query,privateDistro,trueDistro))
+# for query in Queries:
+# 	print("True distribution:", evalquery(query,trueDistro))
+# 	print("Private distribution:", evalquery(query,privateDistro))
+# 	print("Error:", mistake(query,privateDistro,trueDistro))
