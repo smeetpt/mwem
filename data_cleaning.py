@@ -1,4 +1,7 @@
+#%%
 import pandas as pd
+import numpy as np 
+from sklearn.mixture import GaussianMixture
 
 """
 df_capital_loss = {key : capital loss}
@@ -18,6 +21,17 @@ def getdata():
 		df_capital_loss[key] = df_capital_loss_list['capital_loss'][key]
 		df_age_hours[key] = [df_age_hours_list['age'][key], df_age_hours_list['hours'][key]]
 	return df_capital_loss, df_age_hours
-	
-# print(dict(list(df_capital_loss.items())[0:20]))
-# print(dict(list(df_age_hours.items())[0:20]))
+
+def get_range_query():
+	X = np.random.normal(loc = 50, scale = 50, size = 100) # Check again 
+	Y = np.random.normal(loc = 50, scale = 50, size = 100)
+	S = X + Y 
+	S_freq = {}
+	for item in S:
+		element = int(item)
+		if element in S_freq:
+			S_freq[element] += 1
+		else:
+			S_freq = 1
+	return S_freq
+

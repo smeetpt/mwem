@@ -1,8 +1,8 @@
 import numpy as np
 import random
 import createqueries, data_cleaning
-T = 25
-R = 20
+T = 15
+R = 15
 def findDomain(data):
 	domain = []
 	for datum in data.keys():
@@ -107,7 +107,9 @@ def PMW(Queries, data, epsilon):
 	return A,At,Qt
 
 data1,data2 = data_cleaning.getdata()
-Queries = [createqueries.capitallossqeuery3,createqueries.capitallossqeuery1,createqueries.capitallossqeuery2]
+#Queries = [createqueries.capitallossqeuery3,createqueries.capitallossqeuery1,createqueries.capitallossqeuery2]
+domain = findDomain(data1)
+Queries = [createqueries.capitalrangequeries(i) for i in domain]
 trueDistro = empricaldistro(data1)
 privateDistro, alldistros, querylist = PMW(Queries,data1,1)
 print(privateDistro)
