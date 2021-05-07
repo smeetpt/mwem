@@ -1,8 +1,8 @@
 import numpy as np
 import random
 import createqueries, data_cleaning
-T = 25
-R = 20
+T = 15
+R = 15
 def findDomain(data):
 	domain = []
 	for datum in data.keys():

@@ -23,6 +23,8 @@ def capitalrangequeries(threshold):
 	def query(value):
 		if value <= threshold:
 			return 1
+		else:
+			return 0
 	return query
 
 	
