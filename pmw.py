@@ -136,7 +136,7 @@ domain = findDomain(data1)
 Queries = [createqueries.capitalrangequeries(i) for i in domain]
 trueDistro = empricaldistro(data1)
 errors = {}
-for epsilon in [0.0125,0.025,0.5,1]:
+for epsilon in [0.0125,0.025,0.05,0.1]:
 	error2 = 0
 	privateDistro = None
 	for _ in range(5):
