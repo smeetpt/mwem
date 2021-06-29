@@ -135,12 +135,27 @@ data = data_cleaning.get_range_query()
 domain = findDomain(data1)
 Queries = [createqueries.capitalrangequeries(i) for i in domain]
 trueDistro = empricaldistro(data1)
-privateDistro, alldistros, querylist = PMW(Queries,data1,1)
-print(privateDistro)
-print(trueDistro)
-for query in Queries:
-	print("True distribution:", evalquery(query,trueDistro))
-	print("Private distribution:", evalquery(query,privateDistro))
-	print("Error:", mistake(query,privateDistro,trueDistro))
-plt.bar(trueDistro.keys(),trueDistro.values(),0.8)
-plt.bar(privateDistro.keys(),privateDistro.values(),0.8,alpha = 0.5)
+errors = {}
+for epsilon in [0.0125,0.025,0.05,0.1]:
+	error2 = 0
+	privateDistro = None
+	for _ in range(5):
+		privateDistro, alldistros, querylist = PMW(Queries,data1,epsilon)
+	# print(privateDistro)
+	# print(trueDistro)
+		total = 0
+		for query in Queries:
+			error =  mistake(query,privateDistro,trueDistro)
+			total += error
+		# print("True distribution:", evalquery(query,trueDistro))
+		# print("Private distribution:", evalquery(query,privateDistro))
+		# print("Error:",error)
+		error2 += total
+	print("Total average error for all queries:", error2/(5 * len(Queries)))
+	plt.figure()
+	plt.bar(trueDistro.keys(),trueDistro.values(),0.8)
+	plt.bar(privateDistro.keys(),privateDistro.values(),0.8,alpha = 0.5)
+	errors[epsilon] = error2/(5 * len(Queries))
+print(errors)
+
+
