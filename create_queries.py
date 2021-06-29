@@ -27,7 +27,22 @@ def capitalrangequeries(threshold):
 			return 0
 	return query
 
-	
+def capitalrangequeries2(threshold):
+	def query(value):
+		if value < threshold or value > 1 - threshold:
+			return 1
+		else:
+			return 0
+	return query
+
+def capitalrangequeries3(threshold):
+	def query(value):
+		if value <= threshold or value >= 1 - threshold:
+			return 0
+		else:
+			return 1
+	return query
+
 def agexhourqeuery1(value):
 	threshold = 10000
 	if value[1] <= 16:

@@ -1,14 +1,15 @@
 import numpy as np
 import random
 import createqueries, data_cleaning
-T = 40
-R = 40
+import seaborn as sns
+import matplotlib.pyplot as plt
+T = 20
+R = 20
 def findDomain(data):
 	domain = []
 	for datum in data.keys():
 		if data[datum] not in domain:
 			domain.append(data[datum])
-	domain.sort()
 	return domain
 # dat rn a  dictionory of values/names to a discreet set.
 def empricaldistro(data):
@@ -27,6 +28,26 @@ def uniformdistro(domain):
 	for i in domain:
 		uniformdistro[i] = 1/total
 	return uniformdistro
+
+#normalize
+def normalize(distro):
+	total = 0
+	for dataum in distro.keys():
+		total += distro[dataum]
+	for dataum in distro.keys():
+		distro[dataum] = distro[dataum]/total
+	return distro
+
+def denormalize(distro,samples):
+	new = {}
+	for dataum in distro.keys():
+		new[dataum] = distro[dataum]*samples
+	return new
+
+def plot(distro,samples):
+	distro = denormalize(distro,samples)
+	plt.bar(distro.keys(), distro.values(),color='g')
+	plt.show()
 
 # query is a function 
 #distro is a distribution dictionary
@@ -52,7 +73,6 @@ def regret(Qt,Distrot,data):
 
 def exponentialmechanism(Queries,data,distro,epsilon):
 	querydistro = [np.exp(epsilon * scoringfunc(query,data,distro)/2) for query in Queries]
-	
 	choice = np.random.uniform(0,sum(querydistro))
 	choiceindex = 0
 	for mass in querydistro:
@@ -78,26 +98,26 @@ def laplacemechanism(query,data,distro,epsilon):
 def update(query,current_distro,m):
 	new_distro = {}
 	error = m - evalquery(query,current_distro) 
-	total = sum([current_distro[i] * np.exp(query(i) * error/2) for i in current_distro.keys()])
-	#print(total)
 	for i in current_distro.keys():
-		new_distro[i] = (current_distro[i] * np.exp(query(i) * error/2))/total
-	return new_distro
+		new_distro[i] = (current_distro[i] * np.exp(query(i) * error/2))
+
+	return normalize(new_distro)
 
 def PMW(Queries, data, epsilon):
 	domain = findDomain(data)
 	doman_size = len(domain)
 	A = uniformdistro(domain)
-	scale = 2.0/(epsilon * len(data.keys()))
+	scale = 2.0 * T/(epsilon * len(data.keys()))
 	Qt = []
 	At = [A]
 	Mt = []
 	print("PMW Started")
 	for i in range(T):
 		print("Current iteration number:", i)
-		q = noisy_max(Queries,data,A,scale/0.5)
+		#q = noisy_max(Queries,data,A,scale/0.5)
+		q = exponentialmechanism(Queries,data,A,epsilon)
 		Qt.append(q)
-		m = laplacemechanism(q,data,A,scale/0.5)
+		m = laplacemechanism(q,data,A,scale)
 		Mt.append(m)
 		A = update(q,A,m)
 		for j in range(R):
@@ -110,9 +130,10 @@ def PMW(Queries, data, epsilon):
 	return A,At,Qt
 
 data1,data2 = data_cleaning.getdata()
-Queries = [createqueries.capitallossqeuery3,createqueries.capitallossqeuery1,createqueries.capitallossqeuery2]
+data = data_cleaning.get_range_query()
+#Queries = [createqueries.capitallossqeuery3,createqueries.capitallossqeuery1,createqueries.capitallossqeuery2]
 domain = findDomain(data1)
-#Queries = [createqueries.capitalrangequeries(i) for i in domain]
+Queries = [createqueries.capitalrangequeries(i) for i in domain]
 trueDistro = empricaldistro(data1)
 privateDistro, alldistros, querylist = PMW(Queries,data1,1)
 print(privateDistro)
@@ -121,3 +142,5 @@ for query in Queries:
 	print("True distribution:", evalquery(query,trueDistro))
 	print("Private distribution:", evalquery(query,privateDistro))
 	print("Error:", mistake(query,privateDistro,trueDistro))
+plt.bar(trueDistro.keys(),trueDistro.values(),0.8)
+plt.bar(privateDistro.keys(),privateDistro.values(),0.8,alpha = 0.5)
